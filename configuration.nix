@@ -42,8 +42,9 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.joshua = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" ];
   };
+  security.sudo.wheelNeedsPassword = false;
 
   environment.systemPackages = with pkgs; [
     git
@@ -59,10 +60,20 @@
     enableSSHSupport = true;
   };
 
+  programs.tmux.enable = true;
+  programs.tmux.keyMode = "vi";
+  programs.tmux.customPaneNavigationAndResize = true;
+
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  services.openssh.settings = {
+    GatewayPorts = "yes";
+    PasswordAuthentication = false;
+    PermitRootLogin = "no";
+    X11Forwarding = true;
+  };
 
   networking.firewall.enable = false;
 
