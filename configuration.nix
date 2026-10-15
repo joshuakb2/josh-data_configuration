@@ -1,7 +1,3 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
 {
   config,
   lib,
@@ -15,6 +11,7 @@
     ./hardware-configuration.nix
   ];
 
+  nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
@@ -39,6 +36,39 @@
     keyMap = "us";
   };
 
+  # Printer/scanner support
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [ cnijfilter2 ];
+    defaultShared = true;
+    openFirewall = true;
+    listenAddresses = [ "*:631" ];
+    allowFrom = [ "all" ];
+    browsing = true;
+  };
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    nssmdns6 = true;
+    openFirewall = true;
+    publish = {
+      enable = true;
+      userServices = true;
+    };
+  };
+  hardware.sane.enable = true;
+  hardware.printers.ensureDefaultPrinter = "Canon_MG7720";
+  hardware.printers.ensurePrinters = [
+    {
+      name = "Canon_MG7720";
+      model = "canonmg7700.ppd";
+      deviceUri = "usb://Canon/MG7700%20series?serial=12B2A2&interface=1";
+      ppdOptions.Duplex = "DuplexNoTumble";
+    }
+  ];
+  # Makes scanner available over the network
+  services.airsane.enable = true;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.joshua = {
     isNormalUser = true;
@@ -50,6 +80,7 @@
     git
     neovim
     restic
+    usbutils
     wget
   ];
 
