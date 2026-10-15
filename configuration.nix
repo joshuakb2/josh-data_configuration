@@ -49,6 +49,7 @@
   environment.systemPackages = with pkgs; [
     git
     neovim
+    restic
     wget
   ];
 
@@ -73,6 +74,19 @@
     PasswordAuthentication = false;
     PermitRootLogin = "no";
     X11Forwarding = true;
+  };
+
+  services.nfs.server.enable = true;
+  services.nfs.server.exports = ''
+    /media *(rw,async,all_squash)
+    /backup *(rw,sync,all_squash)
+  '';
+
+  services.restic.server = {
+    enable = true;
+    extraFlags = [ "--no-auth" ];
+    dataDir = "/backup";
+    listenAddress = "80";
   };
 
   networking.firewall.enable = false;
